@@ -35,6 +35,15 @@ public class FileGenerator {
         String content = (String)contentList.get(0);
         String[] contents = null;
         Iterator paramIter = parameters.iterator();
+        if (filePath != null)
+        {
+            contents = new String[filePath.length];
+        }
+        else if ("java".equals(fileType))
+        {
+            String[] classNames = (String[]) confMap.get("className");
+            contents = new String[classNames.length];
+        }
 
         while(true) {
             String parameter;
@@ -54,7 +63,7 @@ public class FileGenerator {
                         }
                     } else {
                         for(int i = 0; i < filePath.length; ++i) {
-                            generateFile(filePath[i], contents[i]);
+                            //generateFile(filePath[i], contents[i]);
                         }
                     }
 
@@ -66,19 +75,27 @@ public class FileGenerator {
             } while(confMap.get(p) == null);
 
             String[] values = (String[])confMap.get(p);
-            contents = new String[values.length];
-            String content_copy = content;
+
+
+            String content_copy = null;
 
             for(int i = 0; i < values.length; ++i) {
-                content = content.replaceAll(parameter, values[i]);
-                contents[i] = content;
-                content = content_copy;
+                if (contents[i] == null)
+                {
+                    content_copy = content;
+                }
+                else
+                {
+                    content_copy = contents[i];
+                }
+                content_copy = content_copy.replaceAll(parameter, values[i]);
+                contents[i] = content_copy;
             }
         }
     }
 
     public static void generateJavaFile(String className, String packageName, String content) throws IOException {
-        String fileName = className + ".java";
+        String fileName = className + Keywords.JAVA_FILE_SUFFIX;
         String filePath = packageName.replaceAll("\\.", "\\\\") + "\\" + fileName;
         filePath = FileUtil.getRootPath()[0] + "\\" + filePath;
         File file = new File(filePath);
@@ -103,7 +120,7 @@ public class FileGenerator {
 
     public static Map<String, String[]> parseConfigFile(File configFile) throws IOException {
         String name = configFile.getName();
-        if (!name.endsWith(".properties")) {
+        if (!name.endsWith(Keywords.PROPERTIES_FILE_SUFFIX)) {
             return null;
         } else {
             Map<String, String[]> map = new HashMap();
@@ -132,7 +149,7 @@ public class FileGenerator {
     }
 
     public static Map<String, List<String>> parseTemplateFile(File templateFile) throws Exception {
-        if (!templateFile.getName().endsWith(".tmp")) {
+        if (!templateFile.getName().endsWith(Keywords.TMP_FILE_SUFFIX)) {
             return null;
         } else {
             Map<String, List<String>> map = new HashMap();
@@ -145,12 +162,12 @@ public class FileGenerator {
             for(int i = 0; i < chars.length; ++i) {
                 if ((!" ".equals(String.valueOf(chars[i])) || flag == -1) && (!"\n".equals(String.valueOf(chars[i])) || flag == -1)) {
                     builder.append(chars[i]);
-                    if (builder.toString().equals("set") && flag == 0) {
+                    if (builder.toString().equals(Keywords.SET) && flag == 0) {
                         builder.delete(0, builder.length());
                         flag = 1;
                     }
 
-                    if (builder.toString().equals("parameter") && flag == 1) {
+                    if (builder.toString().equals(Keywords.PARAMETER) && flag == 1) {
                         builder.delete(0, builder.length());
                         flag = 2;
                     }
@@ -167,13 +184,13 @@ public class FileGenerator {
                         flag = 0;
                     }
 
-                    if (flag == 0 && "$begin".equals(builder.toString())) {
+                    if (flag == 0 && Keywords.BEGIN.equals(builder.toString())) {
                         builder.delete(0, builder.length());
                         flag = -1;
                     }
 
-                    if (flag == -1 && builder.toString().endsWith("$end")) {
-                        builder.delete(builder.length() - 3, builder.length());
+                    if (flag == -1 && builder.toString().endsWith(Keywords.END)) {
+                        builder.delete(builder.length() - Keywords.END.length(), builder.length());
                         String content = builder.toString();
                         List<String> contents = new LinkedList();
                         contents.add(content);
