@@ -1,0 +1,11 @@
+set parameter $className;
+
+package com.tool;
+
+public class $className {
+
+
+    public $className() {
+    }
+
+}
