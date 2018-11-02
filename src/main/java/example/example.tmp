@@ -1,11 +1,12 @@
 set parameter $className;
 
-package com.tool;
+$begin
 
 public class $className {
-
 
     public $className() {
     }
 
 }
+
+$end
