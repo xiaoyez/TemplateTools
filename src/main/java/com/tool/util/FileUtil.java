@@ -5,6 +5,8 @@
 
 package com.tool.util;
 
+import com.tool.support.FileResolveException;
+
 import java.io.File;
 import java.io.IOException;
 

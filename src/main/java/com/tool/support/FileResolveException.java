@@ -1,4 +1,4 @@
-package com.tool.util;
+package com.tool.support;
 
 public class FileResolveException extends Exception {
 
